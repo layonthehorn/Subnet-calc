@@ -193,7 +193,7 @@ class subnetcalc():
         
         print("The network address is: {0}.{1}.{2}.{3}".format(self.netadd[0],self.netadd[1],self.netadd[2],self.netadd[3]))
         print("The broadcast address is: {0}.{1}.{2}.{3}".format(self.broadadd[0],self.broadadd[1],self.broadadd[2],self.broadadd[3]))
-        print("The subnet mask is: {0}".format(self.subnet))
+        print("The subnet mask is: /{0}".format(self.subnet))
         print("{0}".format(self.usablehost))
     
 
