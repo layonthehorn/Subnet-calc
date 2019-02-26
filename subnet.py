@@ -9,7 +9,6 @@ import sys, re
 
 class takeinput():
 
-
     def checkip(self,ipaddress):
         if not (re.match("""^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$""",ipaddress)):
             print("You must enter a valid IP address.")
@@ -49,16 +48,11 @@ class subnetcalc():
         net1.append((int(lastoctnet)+1))
         lastoctbroad = broad1.pop()
         broad1.append((int(lastoctbroad)-1))
-        
         stringnet = "{0}.{1}.{2}.{3}".format(net1[0],net1[1],net1[2],net1[3])
         
         stringbroad = "{0}.{1}.{2}.{3}".format(broad1[0],broad1[1],broad1[2],broad1[3])
-
-
-
         return """The usable host range is: {} - {}  """.format(stringnet,stringbroad)
-
-
+    
     def findnetadd(self,addresslist,subnetmask):
         listinbinary = []
         newlist = []
@@ -179,7 +173,7 @@ class subnetcalc():
         self.netadd = self.findnetadd(self.ip.ipaddress,self.subnet)
         self.broadadd = self.findbroadcast(self.ip.ipaddress,self.subnet)
         self.usablehost = self.findhostrange(self.netadd,self.broadadd)
-        
+     # these statments will inform the user of the results   
         print("The network address is: {0}.{1}.{2}.{3}".format(self.netadd[0],self.netadd[1],self.netadd[2],self.netadd[3]))
         print("The broadcast address is: {0}.{1}.{2}.{3}".format(self.broadadd[0],self.broadadd[1],self.broadadd[2],self.broadadd[3]))
         print("The subnet mask is: /{0}".format(self.subnet))
