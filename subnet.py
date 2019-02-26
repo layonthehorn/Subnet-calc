@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 # Layonthehorn
+# This program will take in an IP address. It will then return the subnet mask, network address, and broadcast address.
+# 
+# Created in 4 hours on 2/26/19. The power was down not like I had anything else to do.
 
 import sys, re
 
@@ -60,7 +63,6 @@ class subnetcalc():
         listinbinary = []
         newlist = []
         if subnetmask == 8:
-            #print(addresslist)
             for i in range(len(addresslist)):
                 listinbinary.append(self.dectobin(addresslist[i]))
             listinbinary.pop()
@@ -70,7 +72,6 @@ class subnetcalc():
             listinbinary.append("00000000")
             listinbinary.append("00000000")
             for i in range(len(listinbinary)):
-                #print(listinbinary)
                 newlist.append(self.bintodec(listinbinary[i]))
             return newlist
         elif subnetmask == 16:
@@ -90,7 +91,6 @@ class subnetcalc():
             listinbinary.append("00000000")
             for i in range(len(listinbinary)):
                 newlist.append(self.bintodec(listinbinary[i]))
-                #print(newlist)
             return newlist
 
 
@@ -106,10 +106,8 @@ class subnetcalc():
             listinbinary.append("11111111")
             listinbinary.append("11111111")
             listinbinary.append("11111111")
-            #print(listinbinary)
             for i in range(len(listinbinary)):
                 newlist.append(self.bintodec(listinbinary[i]))
-            #print(newlist)
             return newlist
         elif subnetmask == 16:
             for i in range(len(addresslist)):
@@ -127,9 +125,7 @@ class subnetcalc():
             listinbinary.pop()
             listinbinary.append("11111111")
             for i in range(len(listinbinary)):
-                #print(listinbinary)
                 newlist.append(self.bintodec(listinbinary[i]))
-            #print(newlist)
             return newlist
 
 
@@ -146,7 +142,6 @@ class subnetcalc():
 
                 remander = num%2
                 list.append(remander)
-                #print(remander)
                 num = num //2
             list.reverse()
         while len(list) % 8 != 0 or list == []:
@@ -155,7 +150,6 @@ class subnetcalc():
 
         for i in list:
             finalprint = finalprint + str(i)
-        #print(finalprint)
         return finalprint
     
 
@@ -165,7 +159,6 @@ class subnetcalc():
         finalan = 0
         list =[]
         power2 = 1
-        #print("num",num)
         if num == "00000000":
             finalan = "0"
         else:
@@ -175,9 +168,6 @@ class subnetcalc():
             list.reverse()
             #print(list)
             for i in list:
-                #print(i,power2,loop)
-
-                #print(power2)
                 if i != 0 or loop !=0:
                     finalan = finalan + power2
                 power2 = power2 * 2
@@ -188,7 +178,6 @@ class subnetcalc():
         self.subnet = self.findclass(self.ip.ipaddress)
         self.netadd = self.findnetadd(self.ip.ipaddress,self.subnet)
         self.broadadd = self.findbroadcast(self.ip.ipaddress,self.subnet)
-        #print(self.netadd,self.broadadd)
         self.usablehost = self.findhostrange(self.netadd,self.broadadd)
         
         print("The network address is: {0}.{1}.{2}.{3}".format(self.netadd[0],self.netadd[1],self.netadd[2],self.netadd[3]))
