@@ -28,7 +28,7 @@ class subnetcalc():
             subnetmask = 8 
         elif int(addresslist[0]) <= 191:
             subnetmask = 16
-        elif int(addresslist[0]) <= 227:
+        elif int(addresslist[0]) <= 223:
             subnetmask = 24
         else:
             print("Must be a class A, B, or C.")
