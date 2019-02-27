@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 
 # Layonthehorn
-
+# This program will subnet an IP address with a provided CIDR mask.
+# ./subnet.py 10.0.0.0 /30
+# Network address:10.0.0.0
+# Broadcast address:10.0.0.3
+# Subnet mask:/30
+# Host range:10.0.0.1 - 10.0.0.2
 import sys, re
 
 class takeinput():
@@ -62,10 +67,9 @@ class subnetcalc():
 
     def __init__(self):
         self.ip = takeinput()
-        self.subnet = self.findclass(self.ip.ipaddress)
-        self.netadd = self.findnetadd(self.ip.ipaddress,self.subnet,self.ip.cidr)
-        self.broadadd = self.findbroadcast(self.ip.ipaddress,self.subnet,self.ip.cidr)
-        #print(self.netadd,self.broadadd)
+        self.findclass(self.ip.ipaddress)
+        self.netadd = self.findnetadd(self.ip.ipaddress,self.ip.cidr)
+        self.broadadd = self.findbroadcast(self.ip.ipaddress,self.ip.cidr)
         self.usablehost = self.findhostrange(self.netadd,self.broadadd)
         
         print("The network address is: {0}.{1}.{2}.{3}".format(self.netadd[0],self.netadd[1],self.netadd[2],self.netadd[3]))
@@ -85,7 +89,6 @@ class subnetcalc():
             print("Must be a class A, B, or C.")
             sys.exit(0)
         
-        return subnetmask
 
 
     def findhostrange(self,net,broad):
@@ -107,8 +110,7 @@ class subnetcalc():
         return """The usable host range is: {} - {}  """.format(stringnet,stringbroad)
 
 
-    def findnetadd(self,addresslist,subnetmask, newmask):
-        #print(newmask)
+    def findnetadd(self,addresslist,newmask):
         newlist = []
         listinbinary = ""
         networksec = ""
@@ -123,24 +125,18 @@ class subnetcalc():
         while len(networksec) < 32:
             networksec = networksec + "0"
             
-        #print(listinbinary)
-        #print(networksec)
         for net,ip in zip(networksec,listinbinary):
-            #print(type(net))
             if net == "0":
                 finalnet = finalnet + "0" 
             else:
                 finalnet = finalnet + str(ip)
-        #print(finalnet)
         newlist = [self.bintodec(finalnet[:8]),self.bintodec(finalnet[8:16]),self.bintodec(finalnet[16:24]),self.bintodec(finalnet[24:])]
-        #print(newlist)
         return newlist
 
 
 
 
-    def findbroadcast(self,addresslist,subnetmask,newmask):
-        #print(newmask)
+    def findbroadcast(self,addresslist, newmask):
         newlist = []
         listinbinary = ""
         networksec = ""
@@ -155,17 +151,12 @@ class subnetcalc():
         while len(networksec) < 32:
             networksec = networksec + "0"
             
-        #print(listinbinary)
-        #print(networksec)
         for net,ip in zip(networksec,listinbinary):
-            #print(type(net))
             if net == "0":
                 finalnet = finalnet + "1" 
             else:
                 finalnet = finalnet + str(ip)
-        #print(finalnet)
         newlist = [self.bintodec(finalnet[:8]),self.bintodec(finalnet[8:16]),self.bintodec(finalnet[16:24]),self.bintodec(finalnet[24:])]
-        #print(newlist)
         return newlist
 
 
@@ -182,7 +173,6 @@ class subnetcalc():
 
                 remander = num%2
                 list.append(remander)
-                #print(remander)
                 num = num //2
             list.reverse()
         while len(list) % 8 != 0 or list == []:
@@ -191,7 +181,6 @@ class subnetcalc():
 
         for i in list:
             finalprint = finalprint + str(i)
-        #print(finalprint)
         return finalprint
     
 
@@ -201,7 +190,6 @@ class subnetcalc():
         finalan = 0
         list =[]
         power2 = 1
-        #print("num",num)
         if num == "00000000":
             finalan = "0"
         else:
@@ -209,11 +197,8 @@ class subnetcalc():
                 conum= int(i)
                 list.append(conum)
             list.reverse()
-            #print(list)
             for i in list:
-                #print(i,power2,loop)
 
-                #print(power2)
                 if i != 0 or loop !=0:
                     finalan = finalan + power2
                 power2 = power2 * 2
@@ -222,5 +207,3 @@ class subnetcalc():
 
 if __name__ == "__main__":
     subnetcalc()
-
-
