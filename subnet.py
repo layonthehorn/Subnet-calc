@@ -3,13 +3,14 @@
 # Layonthehorn
 # This program will take in an IP address. It will then return the subnet mask, network address, and broadcast address.
 # 
-# Created in 4 hours on 2/26/19. The power was down not like I had anything else to do.
+# Created in 3 hours on 2/26/19. The power was down not like I had anything else to do.
 
 import sys, re
 
 class takeinput():
 
     def checkip(self,ipaddress):
+        # Checks if the user supplied at proper IP address
         if not (re.match("""^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$""",ipaddress)):
             print("You must enter a valid IP address.")
             print(sys.argv[1])
@@ -17,14 +18,14 @@ class takeinput():
         else:
             return re.split("\.",ipaddress)
     def __init__(self):
-       
+       # If the user did not supply the correct number of arguments the program quits
         if len(sys.argv) < 2:
             print("Usage: (ipaddress)")
             sys.exit(0)
         self.ipaddress = self.checkip(sys.argv[1])
 
 class subnetcalc():
-
+    # this block of code finds the class the IP address is in
     def findclass(self, addresslist):
         if int(addresslist[0]) <= 127:
             subnetmask = 8 
@@ -40,6 +41,8 @@ class subnetcalc():
 
 
     def findhostrange(self,net,broad):
+        #this finds the range of usable hosts.
+        # copying the lists to be changed later
         net1 = net[:]
         broad1 = broad[:]
         stringnet = ""
