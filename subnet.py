@@ -1,31 +1,79 @@
 #!/usr/bin/env python3
 
 # Layonthehorn
-# This program will take in an IP address. It will then return the subnet mask, network address, and broadcast address.
-# 
-# Created in 3 hours on 2/26/19. The power was down not like I had anything else to do.
 
 import sys, re
 
 class takeinput():
 
+    def __init__(self):
+       
+        if len(sys.argv) < 3:
+            print("Usage: (ipaddress) (CIDR Mask)")
+            sys.exit(0)
+        self.ipaddress = self.checkip(sys.argv[1])
+        self.cidr = self.checkcidr(sys.argv[2])
+        self.checkipsub(self.ipaddress,self.cidr)
+
+
     def checkip(self,ipaddress):
-        # Checks if the user supplied at proper IP address
         if not (re.match("""^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$""",ipaddress)):
             print("You must enter a valid IP address.")
             print(sys.argv[1])
             sys.exit(0)
         else:
             return re.split("\.",ipaddress)
-    def __init__(self):
-       # If the user did not supply the correct number of arguments the program quits
-        if len(sys.argv) < 2:
-            print("Usage: (ipaddress)")
+
+
+    def checkcidr(self,cidrmask):
+        '''
+The ^ matches the start of the string. The $ matches the end of the string.
+The / is just a forward slash. The [8-9] that follows it is a range of numbers that match.
+the | splits up different paternts that all match. 
+As long as one of these match the function returns true and the subnet mask is returned.
+the \d can be any digit 0-9.
+So /[8-9] would match /8 and /9.
+and /1\d matches /10-/19
+then /2\d matches /20-/29
+then /30 just matches /30
+        '''
+        if not re.match("^(/[8-9]|/1\d|/2\d|/30)$",cidrmask):
+            print("Mask must be inbetween 7 and 31.\nFormat: /number")
             sys.exit(0)
-        self.ipaddress = self.checkip(sys.argv[1])
+        else:
+            cidrmask = cidrmask.replace("/","")
+            return int(cidrmask)
+
+    def checkipsub(self,ip,sub):
+        tip = int(ip[0])
+        
+
+        if (tip <= 191 and tip >=128) and sub < 16:
+            print("The lowest a class B can have for a mask is /16.")
+            sys.exit(0)
+
+        elif (tip <= 223 and tip >=192) and sub < 24:
+            print("The lowest a class C can have for a mask is /24.")
+            sys.exit(0)
+
+
 
 class subnetcalc():
-    # this block of code finds the class the IP address is in
+
+    def __init__(self):
+        self.ip = takeinput()
+        self.subnet = self.findclass(self.ip.ipaddress)
+        self.netadd = self.findnetadd(self.ip.ipaddress,self.subnet,self.ip.cidr)
+        self.broadadd = self.findbroadcast(self.ip.ipaddress,self.subnet,self.ip.cidr)
+        #print(self.netadd,self.broadadd)
+        self.usablehost = self.findhostrange(self.netadd,self.broadadd)
+        
+        print("The network address is: {0}.{1}.{2}.{3}".format(self.netadd[0],self.netadd[1],self.netadd[2],self.netadd[3]))
+        print("The broadcast address is: {0}.{1}.{2}.{3}".format(self.broadadd[0],self.broadadd[1],self.broadadd[2],self.broadadd[3]))
+        print("The subnet mask is: /{0}".format(self.ip.cidr))
+        print("{0}".format(self.usablehost))
+    
+
     def findclass(self, addresslist):
         if int(addresslist[0]) <= 127:
             subnetmask = 8 
@@ -41,8 +89,6 @@ class subnetcalc():
 
 
     def findhostrange(self,net,broad):
-        #this finds the range of usable hosts.
-        # copying the lists to be changed later
         net1 = net[:]
         broad1 = broad[:]
         stringnet = ""
@@ -51,79 +97,76 @@ class subnetcalc():
         net1.append((int(lastoctnet)+1))
         lastoctbroad = broad1.pop()
         broad1.append((int(lastoctbroad)-1))
+        
         stringnet = "{0}.{1}.{2}.{3}".format(net1[0],net1[1],net1[2],net1[3])
         
         stringbroad = "{0}.{1}.{2}.{3}".format(broad1[0],broad1[1],broad1[2],broad1[3])
+
+
+
         return """The usable host range is: {} - {}  """.format(stringnet,stringbroad)
-    
-    def findnetadd(self,addresslist,subnetmask):
-        listinbinary = []
-        newlist = []
-        if subnetmask == 8:
-            for i in range(len(addresslist)):
-                listinbinary.append(self.dectobin(addresslist[i]))
-            listinbinary.pop()
-            listinbinary.pop()
-            listinbinary.pop()
-            listinbinary.append("00000000")
-            listinbinary.append("00000000")
-            listinbinary.append("00000000")
-            for i in range(len(listinbinary)):
-                newlist.append(self.bintodec(listinbinary[i]))
-            return newlist
-        elif subnetmask == 16:
-            for i in range(len(addresslist)):
-                listinbinary.append(self.dectobin(addresslist[i]))
-            listinbinary.pop()
-            listinbinary.pop()
-            listinbinary.append("00000000")
-            listinbinary.append("00000000")
-            for i in range(len(listinbinary)):
-                newlist.append(self.bintodec(listinbinary[i]))
-            return newlist
-        elif subnetmask == 24:
-            for i in range(len(addresslist)):
-                listinbinary.append(self.dectobin(addresslist[i]))
-            listinbinary.pop()
-            listinbinary.append("00000000")
-            for i in range(len(listinbinary)):
-                newlist.append(self.bintodec(listinbinary[i]))
-            return newlist
 
 
-    def findbroadcast(self,addresslist,subnetmask):
-        listinbinary = []
+    def findnetadd(self,addresslist,subnetmask, newmask):
+        #print(newmask)
         newlist = []
-        if subnetmask == 8:
-            for i in range(len(addresslist)):
-                listinbinary.append(self.dectobin(addresslist[i]))
-            listinbinary.pop()
-            listinbinary.pop()
-            listinbinary.pop()
-            listinbinary.append("11111111")
-            listinbinary.append("11111111")
-            listinbinary.append("11111111")
-            for i in range(len(listinbinary)):
-                newlist.append(self.bintodec(listinbinary[i]))
-            return newlist
-        elif subnetmask == 16:
-            for i in range(len(addresslist)):
-                listinbinary.append(self.dectobin(addresslist[i]))
-            listinbinary.pop()
-            listinbinary.pop()
-            listinbinary.append("11111111")
-            listinbinary.append("11111111")
-            for i in range(len(listinbinary)):
-                newlist.append(self.bintodec(listinbinary[i]))
-            return newlist
-        elif subnetmask == 24:
-            for i in range(len(addresslist)):
-                listinbinary.append(self.dectobin(addresslist[i]))
-            listinbinary.pop()
-            listinbinary.append("11111111")
-            for i in range(len(listinbinary)):
-                newlist.append(self.bintodec(listinbinary[i]))
-            return newlist
+        listinbinary = ""
+        networksec = ""
+        hostsec = ""
+        finalnet = ""
+        for i in range(len(addresslist)):
+             listinbinary= listinbinary + str(self.dectobin(addresslist[i]))
+
+        for i in range(newmask):
+            networksec = networksec + "1"
+
+        while len(networksec) < 32:
+            networksec = networksec + "0"
+            
+        #print(listinbinary)
+        #print(networksec)
+        for net,ip in zip(networksec,listinbinary):
+            #print(type(net))
+            if net == "0":
+                finalnet = finalnet + "0" 
+            else:
+                finalnet = finalnet + str(ip)
+        #print(finalnet)
+        newlist = [self.bintodec(finalnet[:8]),self.bintodec(finalnet[8:16]),self.bintodec(finalnet[16:24]),self.bintodec(finalnet[24:])]
+        #print(newlist)
+        return newlist
+
+
+
+
+    def findbroadcast(self,addresslist,subnetmask,newmask):
+        #print(newmask)
+        newlist = []
+        listinbinary = ""
+        networksec = ""
+        hostsec = ""
+        finalnet = ""
+        for i in range(len(addresslist)):
+             listinbinary= listinbinary + str(self.dectobin(addresslist[i]))
+
+        for i in range(newmask):
+            networksec = networksec + "1"
+
+        while len(networksec) < 32:
+            networksec = networksec + "0"
+            
+        #print(listinbinary)
+        #print(networksec)
+        for net,ip in zip(networksec,listinbinary):
+            #print(type(net))
+            if net == "0":
+                finalnet = finalnet + "1" 
+            else:
+                finalnet = finalnet + str(ip)
+        #print(finalnet)
+        newlist = [self.bintodec(finalnet[:8]),self.bintodec(finalnet[8:16]),self.bintodec(finalnet[16:24]),self.bintodec(finalnet[24:])]
+        #print(newlist)
+        return newlist
 
 
 
@@ -139,6 +182,7 @@ class subnetcalc():
 
                 remander = num%2
                 list.append(remander)
+                #print(remander)
                 num = num //2
             list.reverse()
         while len(list) % 8 != 0 or list == []:
@@ -147,6 +191,7 @@ class subnetcalc():
 
         for i in list:
             finalprint = finalprint + str(i)
+        #print(finalprint)
         return finalprint
     
 
@@ -156,6 +201,7 @@ class subnetcalc():
         finalan = 0
         list =[]
         power2 = 1
+        #print("num",num)
         if num == "00000000":
             finalan = "0"
         else:
@@ -165,26 +211,16 @@ class subnetcalc():
             list.reverse()
             #print(list)
             for i in list:
+                #print(i,power2,loop)
+
+                #print(power2)
                 if i != 0 or loop !=0:
                     finalan = finalan + power2
                 power2 = power2 * 2
         return finalan
 
-    def __init__(self):
-        self.ip = takeinput()
-        self.subnet = self.findclass(self.ip.ipaddress)
-        self.netadd = self.findnetadd(self.ip.ipaddress,self.subnet)
-        self.broadadd = self.findbroadcast(self.ip.ipaddress,self.subnet)
-        self.usablehost = self.findhostrange(self.netadd,self.broadadd)
-     # these statments will inform the user of the results   
-        print("The network address is: {0}.{1}.{2}.{3}".format(self.netadd[0],self.netadd[1],self.netadd[2],self.netadd[3]))
-        print("The broadcast address is: {0}.{1}.{2}.{3}".format(self.broadadd[0],self.broadadd[1],self.broadadd[2],self.broadadd[3]))
-        print("The subnet mask is: /{0}".format(self.subnet))
-        print("{0}".format(self.usablehost))
-    
 
 if __name__ == "__main__":
     subnetcalc()
-
 
 
