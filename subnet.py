@@ -12,7 +12,7 @@ import sys, re
 class takeinput():
 
     def __init__(self):
-       
+       # if the user does not give 2 arguments the program quits
         if len(sys.argv) < 3:
             print("Usage: (ipaddress) (CIDR Mask)")
             sys.exit(0)
@@ -22,11 +22,13 @@ class takeinput():
 
 
     def checkip(self,ipaddress):
+        # this checks if the user entered a proper IP address
         if not (re.match("""^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$""",ipaddress)):
             print("You must enter a valid IP address.")
             print(sys.argv[1])
             sys.exit(0)
         else:
+            # this returns a list of the 4 octets
             return re.split("\.",ipaddress)
 
 
@@ -46,13 +48,14 @@ then /30 just matches /30
             print("Mask must be inbetween 7 and 31.\nFormat: /number")
             sys.exit(0)
         else:
+            # this removes the / so the subnet mask can be stored as an integer
             cidrmask = cidrmask.replace("/","")
             return int(cidrmask)
 
     def checkipsub(self,ip,sub):
         tip = int(ip[0])
         
-
+        # this checks if the user is trying to sub net an IP address with an improper mask
         if (tip <= 191 and tip >=128) and sub < 16:
             print("The lowest a class B can have for a mask is /16.")
             sys.exit(0)
@@ -71,7 +74,7 @@ class subnetcalc():
         self.netadd = self.findnetadd(self.ip.ipaddress,self.ip.cidr)
         self.broadadd = self.findbroadcast(self.ip.ipaddress,self.ip.cidr)
         self.usablehost = self.findhostrange(self.netadd,self.broadadd)
-        
+        # this prints the results for the user to see
         print("The network address is: {0}.{1}.{2}.{3}".format(self.netadd[0],self.netadd[1],self.netadd[2],self.netadd[3]))
         print("The broadcast address is: {0}.{1}.{2}.{3}".format(self.broadadd[0],self.broadadd[1],self.broadadd[2],self.broadadd[3]))
         print("The subnet mask is: /{0}".format(self.ip.cidr))
@@ -79,6 +82,8 @@ class subnetcalc():
     
 
     def findclass(self, addresslist):
+        # this finds the class of the IP address
+        # if it is a class D or E the program quits
         if int(addresslist[0]) <= 127:
             subnetmask = 8 
         elif int(addresslist[0]) <= 191:
@@ -92,21 +97,23 @@ class subnetcalc():
 
 
     def findhostrange(self,net,broad):
+        # this clones the lists of network and broadcast addresses
+        # preventing those values from being altered
         net1 = net[:]
         broad1 = broad[:]
         stringnet = ""
         stringbroad = ""
+        # this finds the range of host addresses
+        # by add one to the network address and 
+        # subtracting one from the broadcast address
         lastoctnet = net1.pop()
         net1.append((int(lastoctnet)+1))
         lastoctbroad = broad1.pop()
         broad1.append((int(lastoctbroad)-1))
         
+        # this formats and returns the IP addresses and range
         stringnet = "{0}.{1}.{2}.{3}".format(net1[0],net1[1],net1[2],net1[3])
-        
         stringbroad = "{0}.{1}.{2}.{3}".format(broad1[0],broad1[1],broad1[2],broad1[3])
-
-
-
         return """The usable host range is: {} - {}  """.format(stringnet,stringbroad)
 
 
@@ -114,22 +121,28 @@ class subnetcalc():
         newlist = []
         listinbinary = ""
         networksec = ""
-        hostsec = ""
         finalnet = ""
+        # this creates a list of the binary values of the ip address
         for i in range(len(addresslist)):
              listinbinary= listinbinary + str(self.dectobin(addresslist[i]))
-
+        #This creates the string that is the binary values of the subnet mask
         for i in range(newmask):
             networksec = networksec + "1"
-
+        # this fills what ever is left after the network section with 0s
+        # Which is the host section
         while len(networksec) < 32:
             networksec = networksec + "0"
             
+        # this iterates through the two strings
+        # building the network address 
+        # it uses the host sections of the networksec and fills those with zeros
+        # It fills any thing else with the binary bits from the give IP address
         for net,ip in zip(networksec,listinbinary):
             if net == "0":
                 finalnet = finalnet + "0" 
             else:
                 finalnet = finalnet + str(ip)
+                # building the returned list by slicing the string and converting it to decimal
         newlist = [self.bintodec(finalnet[:8]),self.bintodec(finalnet[8:16]),self.bintodec(finalnet[16:24]),self.bintodec(finalnet[24:])]
         return newlist
 
@@ -142,20 +155,28 @@ class subnetcalc():
         networksec = ""
         hostsec = ""
         finalnet = ""
+        # this creates a list of the binary values of the ip address
         for i in range(len(addresslist)):
              listinbinary= listinbinary + str(self.dectobin(addresslist[i]))
-
+        #This creates the string that is the binary values of the subnet mask
         for i in range(newmask):
             networksec = networksec + "1"
+            # this fills what ever is left after the network section with 0s
+            # Which is the host section the string must be 32 bits long
+            # the while loop adds zero until it is exactly 32 bits long
 
         while len(networksec) < 32:
             networksec = networksec + "0"
-            
+        # this iterates through the two strings
+        # building the broadcast address 
+        # it uses the host sections of the networksec and fills those with ones
+        # It fills any thing else with the binary bits from the give IP address
         for net,ip in zip(networksec,listinbinary):
             if net == "0":
                 finalnet = finalnet + "1" 
             else:
                 finalnet = finalnet + str(ip)
+                # building the returned list by slicing the string and converting it to decimal
         newlist = [self.bintodec(finalnet[:8]),self.bintodec(finalnet[8:16]),self.bintodec(finalnet[16:24]),self.bintodec(finalnet[24:])]
         return newlist
 
@@ -166,15 +187,21 @@ class subnetcalc():
         finalprint = ""
         num = int(num)
         list =[]
+        # if the number is zero it skips this part and just builds a
+        # string of all zeros
         if num == 0:
             pass
         else:
+            # runs through this to convert the number to binary
             while num > 0:
 
                 remander = num%2
                 list.append(remander)
                 num = num //2
+            # this reverses the list because at this point the binary number is backwards
             list.reverse()
+        # the list is not cleanly divided by zero is adds
+        # zeros to the end of it to maintain a consistent lenght
         while len(list) % 8 != 0 or list == []:
 
             list.insert(0,0)
@@ -190,9 +217,12 @@ class subnetcalc():
         finalan = 0
         list =[]
         power2 = 1
+        # if the binary input is 8 zeros it returns a single zero
         if num == "00000000":
             finalan = "0"
         else:
+            # if the number is not 8 zeros then is converts the string to a integer
+            # adds it to a list and reverses the list
             for i in str(num):
                 conum= int(i)
                 list.append(conum)
