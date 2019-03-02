@@ -84,7 +84,13 @@ class subnetcalc():
     def findclass(self, addresslist):
         # this finds the class of the IP address
         # if it is a class D or E the program quits
-        if int(addresslist[0]) <= 127:
+        if int(addresslist[0]) == 127:
+            print("The whole range of 127.0.0.0/8\nIs reserved for local loopbacks.")
+            sys.exit(0)
+        elif int(addresslist[0]) == 169 and int(addresslist[1]) == 254:
+            print("The 169.254.0.0/16 range is restricted for APIPA only.")
+            sys.exit(0)
+        elif int(addresslist[0]) <= 127:
             subnetmask = 8 
         elif int(addresslist[0]) <= 191:
             subnetmask = 16
