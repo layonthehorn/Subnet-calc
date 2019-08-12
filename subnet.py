@@ -3,10 +3,10 @@
 # Layonthehorn
 # This program will subnet an IP address with a provided CIDR mask.
 # ./subnet.py 10.0.0.0 /30
-# Network address:10.0.0.0
-# Broadcast address:10.0.0.3
-# Subnet mask:/30
-# Host range:10.0.0.1 - 10.0.0.2
+# >>Network address:10.0.0.0
+# >>Broadcast address:10.0.0.3
+# >>Subnet mask:/30
+# >>Host range:10.0.0.1 - 10.0.0.2
 import sys, re
 
 class takeinput():
